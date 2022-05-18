@@ -15,6 +15,9 @@ PROBLEM : When we run the "Obstacle Avoidance" programme, the data sent by the L
 SOLUTION : Implement Independant Communication Protocols for both of the type of datas ie data sent for Teleoperation and the data 
            sent for Autonomous Traversal.
            
+FUTURE UPDATE : The "LED Panel - Mode Detector" is yet to be interfaced. The Panel will showcase Blue while Teleoperation, Red while
+                Autonomous Traversal and Flashing Green when the desired location is acheived.
+           
 FUTURE SCOPE: Run the whole progroamme on FreeRTOS and use unique threads for each of the mode
 
 */ 
