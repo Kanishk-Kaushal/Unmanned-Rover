@@ -4,14 +4,6 @@
 #include <string.h>
 #include <stdio.h>
 
-/*
- * 
- * FEW CHANGES REQUIRED FOR EFFICIENT WIRING OF THE ARM
- * ROLL OF THE GRIPPER -> RST -> DIR | PB1 -> PWM
- * 
- 
- */
-
 uint16_t pwm = 5500;
 //MACROS
 #define stop_swivel TIM2->CCR1 = 0;
