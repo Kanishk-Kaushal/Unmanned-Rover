@@ -21,7 +21,7 @@ AXIS_LEFT_STICK_X = 0
 AXIS_LEFT_STICK_Y = 1
 AXIS_RIGHT_STICK_X = 2
 AXIS_RIGHT_STICK_Y = 3
-AXIS_R2 = 45
+AXIS_R2 = 4
 AXIS_L2 = 5
 # Labels for DS4 controller buttons
 # # Note that there are 14 buttons (0 to 13 for pygame, 1 to 14 for Windows setup)
@@ -33,7 +33,7 @@ BUTTON_L1 = 9
 BUTTON_R1 = 10
 BUTTON_L2 = 7
 BUTTON_R2 = 8
-BUTTON_SHARE = 8
+BUTTON_SHARE = 4
 BUTTON_OPTIONS = 6
 
 BUTTON_LEFT_STICK = 10
@@ -45,6 +45,9 @@ LEFT_ARROW=13
 RIGHT_ARROW=14
 BUTTON_PS = 5
 BUTTON_PAD = 15
+
+gear = 0
+
 axis = {}
 button = {}
 
@@ -91,12 +94,12 @@ class CameraThread(QThread):
                 
 
                 self.changePixmap.emit(p)
-                if ps4.logic == 1:
-                    value += 1
-                    cv2.imwrite(
-                        'C:/Users/Devansh/Python/PyQt5 Codes/PyQt5 Designer/Screenshot/CamPhotoNo.%s.png' % (value), frame)
-                    Camera.logic = 0
-                    print("SS taken")
+                # if ps4.logic == 1:
+                #     value += 1
+                #     cv2.imwrite(
+                #         'C:/Users/Devansh/Python/PyQt5 Codes/PyQt5 Designer/Screenshot/CamPhotoNo.%s.png' % (value), frame)
+                #     Camera.logic = 0
+                #     print("SS taken")
     
 class ps4(QMainWindow):
     speak=pyqtSignal(str)
@@ -118,7 +121,7 @@ class ps4(QMainWindow):
         self.controller = pygame.joystick.Joystick(0)
         self.controller.init()
         global a
-        a=uic.loadUi(r"C:/GUI-2022-main/GUI-2022-main/MRM.ui", self)
+        a=uic.loadUi(r"C:\Users\MEET\Desktop\Rover\MRM.ui", self)
         
     def setup(self):
         # Three types of controls: axis, button, and hat
@@ -128,7 +131,6 @@ class ps4(QMainWindow):
             # Buttons are initialized to False
         for i in range(self.controller.get_numbuttons()):
             button[i] = False
-            
         self.control()
 
     # Main loop, one can press the PS button to break
@@ -166,9 +168,13 @@ class ps4(QMainWindow):
         global gear
         if(self.debounce(BUTTON_R1)==True and gear<9):
                 gear += 1
+                print("Gear = ")
+                print(gear)
             
         if(self.debounce(BUTTON_L1)==True and gear>0): 
                 gear -= 1
+                print("Gear = ")
+                print(gear)
     
     def getValueXJoy(self,stick):
         return  str(int(axis[stick]*8000+8000))
@@ -195,7 +201,7 @@ class ps4(QMainWindow):
         pitch="00000"
         swivel="00000"
         gripper="00000"
-
+        allenkey="00000"
 
             # print(x)
         # self.getGear()
@@ -211,24 +217,6 @@ class ps4(QMainWindow):
         else:
             swivel="00000"
             
-        if(button[BUTTON_L2] == True): # THIS IS ACTUALLY LEFT JOYSTICK BUTTON
-            
-            exec_time=0.00
-            start_time = time.time()
-
-            while(exec_time<=2):
-                #gripper="16000" # OPEN
-                print("Button L2")
-                exec_time = time.time() - start_time 
-                
-        elif(button[BUTTON_R2]==True): # THIS IS ACTUALLY RIGHT JOYSTICK BUTTON
-            print("Button R2")
-            gripper="16001" # CLOSE
-            
-        else:
-            print("NONE")
-            
-                
             # For Roll
         if(button[LEFT_ARROW]==True):
             
@@ -254,16 +242,33 @@ class ps4(QMainWindow):
             
             pitch="00000"
             roll="00000"
-                
+
         if(button[BUTTON_SQUARE]==True):
             gripper="16000"
         elif(button[BUTTON_CROSS]==True):
             gripper="16001"
         else:
             gripper="00000"
-        
+
+        # if(button[BUTTON_OPTIONS]==True):
+        #     allenkey="16000"
+                
+        # elif(button[BUTTON_SHARE]==True):
+        #     allenkey="16001"
+            
+        # else:
+        #     allenkey="00000"
+            
+        if(button[BUTTON_L2]==True):
+            print("Button L2")
+        elif(button[BUTTON_R2]==True):
+            print("Button R2")
+        else:
+            print("L2 and R2")
             
         self.SendMsg("as"+str(swivel)+'o'+y_l+'t'+y_r+'r'+str(roll)+'p'+str(pitch)+'g'+str(gripper))
+        #msg = ("as"+str(swivel)+'o'+y_l+'t'+y_r+'r'+str(roll)+'p'+str(pitch)+'g'+str(gripper))
+        #print(msg)
         
         
         
@@ -274,19 +279,29 @@ class ps4(QMainWindow):
         y_r=self.getValueYJoy(AXIS_RIGHT_STICK_Y)
         x_r=x_r.zfill(5)
         y_r=y_r.zfill(5)
-        temp_y = y_r
+            
+        if(button[BUTTON_L2]==True):
+            print("Button L2")
+        elif(button[BUTTON_R2]==True):
+            print("Button R2")
+        else:
+            print("L2 and R2")
+
 
         self.getGear()
         self.SendMsg("m"+str(gear)+"s"+x_r+"f"+y_r+"n")
-
-                        
+        #msg = ("m"+str(gear)+"s"+x_r+"f"+y_r+"n")
+        #print(msg)
             
-    def SendMsg(self, msg):
+        
+        
+    def SendMsg(self,msg):
         comm.send(msg)
         print(msg)
         
     # def DigitalTrain(self,b):
     #     while(button[b]==True):
+            
             
         
     def display(self):
@@ -350,7 +365,6 @@ class ps4(QMainWindow):
         self.th2.start()
         
         
-        
         # th2=CameraThread()
         # a.screenshot.pressed.connect(CameraThread.TakeScreenshot)
         
@@ -375,9 +389,7 @@ class ps4(QMainWindow):
     pyqtSlot(str)
     def setTerminal(self,s):
         a.terminal.setPlainText(s)
-        
 class Comm():
-    
     def __init__(self):
         
         # self.SERVER = socket.gethostbyname(socket.gethostname())
@@ -415,7 +427,7 @@ widget.show()
 comm=Comm()
 # comm.send("Hello World")
 # comm.send("Hello Apoogggrv")
-# comm.send("Hello Bitchhjytr!")  818uj                                                                        
+# comm.send("Hello Bitchhjytr!")  
 
 t1=threading.Thread(target=mainWindow.setup, args=())
 t1.start()
