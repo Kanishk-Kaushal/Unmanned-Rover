@@ -40,6 +40,10 @@ void GPIO_Initialize()
 	GPIOA->CRL |= GPIO_CRL_MODE7;   //OUTPUT Mode 50Mhz
 	GPIOA->CRL &= ~(GPIO_CRL_CNF7);   //Output Push-Pull
 
+	//Setup PA8:
+	GPIOA->CRH |= GPIO_CRH_MODE8;   //OUTPUT Mode 50Mhz
+	GPIOA->CRH &= ~(GPIO_CRH_CNF8);   //Output Push-Pull
+
 	//Setup PA5:
 	GPIOA->CRL |= GPIO_CRL_MODE5;   //OUTPUT Mode 50Mhz
 	GPIOA->CRL &= ~(GPIO_CRL_CNF5);   //Output Push-Pull
@@ -159,11 +163,6 @@ void GPIO_Initialize()
 	// b12 LIMIT SWITCH
 	GPIOB->CRH |= GPIO_CRH_MODE12;	 //OUTPUT Mode (11)
 	GPIOB->CRH &= ~(GPIO_CRH_CNF12); //Output Push-Pull (00)
-
-	// A8 PWM
-	GPIOA->CRL |= GPIO_CRL_MODE8;  //OUTPUT Mode (11)
-	GPIOA->CRL |= GPIO_CRL_CNF8_1; //AF Output Push-Pull (10)
-	GPIOA->CRL &= ~(GPIO_CRL_CNF8_0);
 
 	// A6 PWM
 	GPIOA->CRL |= GPIO_CRL_MODE6;  //OUTPUT Mode (11)
@@ -469,8 +468,8 @@ int main() {
 				allen = (getuval() - '0') * 10000 + (getuval() - '0') * 1000
 						+ (getuval() - '0') * 100 + (getuval() - '0') * 10
 						+ (getuval() - '0'); //Right Trigger
-				if (gripper == 0)
-					stop_gripper
+				if (allen == 0)
+					stop_allen
 
 				else if (allen == 16000) {
 					GPIOA->BSRR = 1 << (15 + 16);
