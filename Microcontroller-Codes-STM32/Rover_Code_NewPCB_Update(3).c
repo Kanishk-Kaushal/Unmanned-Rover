@@ -535,18 +535,21 @@ int main() {
 						+ (getuval() - '0') * 100 + (getuval() - '0') * 10
 						+ (getuval() - '0');   //y value
 			}
-			if(getuval() == 'b') 	// MAST
+			if(getuval() == 'c') 	// MAST
 			{
+				/*
 				mast = (getuval() - '0') * 10000 + (getuval() - '0') * 1000
 						+ (getuval() - '0') * 100 + (getuval() - '0') * 10
 						+ (getuval() - '0');
-				if (mast == 0)
+				*/
+				
+				if ((getuval()-'0') == 0)
 					stop_mast
 
-				else if (mast == 16000) {
+				else if (getuval() == 'l') {
 					GPIOB->BSRR = 1 << (14 + 16);
 					move_mast
-				} else if (mast == 16001) {
+				} else if (getuval() == 'r') {
 					GPIOB->BSRR = 1 << 14;
 					move_mast
 				}
