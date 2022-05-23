@@ -1,3 +1,5 @@
+// PIN REMAPPING ACCORDING TO THE NEW PCB (2022)
+
 #include "stm32f1xx.h"
 #include "stdlib.h"
 #include <stdarg.h>
