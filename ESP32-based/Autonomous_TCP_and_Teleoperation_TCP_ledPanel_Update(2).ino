@@ -11,6 +11,8 @@ PROBLEM-1 : When we run the "Obstacle Avoidance" programme, the data sent by the
 SOLUTION-1 : Implement Independant Communication Protocols for both of the type of datas ie data sent for Teleoperation and the data 
            sent for Autonomous Traversal.
            
+PROBLEM-2 : The new PCB is yet to be made and the "Pin-Remapping might be an issue".
+           
 FUTURE UPDATE : The "LED Panel - Mode Detector" is yet to be interfaced. The Panel will showcase Blue while Teleoperation, Red while
                 Autonomous Traversal and Flashing Green when the desired location is acheived.
            
