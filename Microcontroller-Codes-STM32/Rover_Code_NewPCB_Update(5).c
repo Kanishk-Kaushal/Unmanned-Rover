@@ -5,10 +5,6 @@
 #include <stdio.h>
 
 uint16_t pwm = 5500;
-volatile static int count = 0;
-int flag = 0;
-volatile int x = 0, y = 0;
-
 //MACROS
 #define stop_swivel GPIOA -> BSRR = 1 << (8+16); // A8
 #define move_swivel GPIOA ->BSRR = 1 << 8;
@@ -142,11 +138,6 @@ void GPIO_Initialize()
 	GPIOB->CRH |= GPIO_CRH_MODE9;  //OUTPUT Mode (11)
 	GPIOB->CRH |= GPIO_CRH_CNF9_1; //AF Output Push-Pull (10)
 	GPIOB->CRH &= ~(GPIO_CRH_CNF9_0);
-
-	//PB8 Setup: (DIR) -> MAST
-	GPIOB->CRH |= GPIO_CRH_MODE8;  //OUTPUT Mode (11)
-	GPIOB->CRH |= GPIO_CRH_CNF8_1; //AF Output Push-Pull (10)
-
 
 	//6)
 	//PB10 Setup: (DIR)
@@ -354,7 +345,6 @@ void UART_Initilaize() {
 	USART1->CR1 |= (USART_CR1_RE | USART_CR1_TE | USART_CR1_UE);
 }
 
-/*
 uint8_t getuval() //Reads UART Values
 {
 	uint8_t data;
@@ -363,55 +353,18 @@ uint8_t getuval() //Reads UART Values
 	data = USART1->DR;
 	return data;
 }
-*/
-
-uint8_t getuval()   //Reads UART Values
-{
-	uint8_t data;
-	count = 0;
-	if (flag == 1) {
-
-		return 0;
-	}
-	while (count < 800 && !(USART1->SR & USART_SR_RXNE)) {
-	}
-	if (count >= 800) {
-		flag = 1;
-		x = 8000;
-		y = 8000;
-		stop_swivel
-		stop_roll
-		stop_pitch
-		stop_gripper
-		stop_allen
-		stop_mast
-		move_link1(0)
-		move_link2(0)
-		return 0;
-	} else {
-		flag = 0;
-		data = USART1->DR;
-		return data;
-	}
-
-}
-
 int Adjust(int k) {
 	k = k - 8000;
 	if (abs(k) < 500)
 		k = 0;
 	return k;
 }
-int main()
-{
-
+int main() {
 	GPIO_Initialize();
 	Timer_Initialize();
 	UART_Initilaize();
-
 	uint8_t mode = 0;
-
-
+	int x = 0, y = 0;
 	float gear = 1.0;
 	int swivel = 0, link1 = 0;
 	int link2 = 0, roll = 0;
@@ -420,16 +373,12 @@ int main()
 	int mast = 0;
 	int trash = 0;
 
-	while (1)
-	{
+	//float gear = 1.0;
+	while (1) {
 		//Read LAN2UART Values
-		flag = 0;
 
 		mode = getuval();
-		if (mode == 'a')
-		{
-			x=8000;
-			y=8000;
+		if (mode == 'a') {
 			if (getuval() == 's')		//SWIVEL
 					{
 				swivel = (getuval() - '0') * 10000 + (getuval() - '0') * 1000
@@ -541,29 +490,8 @@ int main()
 					move_allen
 				}
 			}
-			if(getuval() == 'c') 	// MAST
-			{
-				x=8000;
-				y=8000;
-				/*
-				mast = (getuval() - '0') * 10000 + (getuval() - '0') * 1000
-						+ (getuval() - '0') * 100 + (getuval() - '0') * 10
-						+ (getuval() - '0');
-				*/
 
-				if ((getuval()-'0') == 0)
-					stop_mast
-
-				else if (getuval() == 'l') {
-					GPIOB->BSRR = 1 << (8 + 16);
-					move_mast
-				} else if (getuval() == 'r') {
-					GPIOB->BSRR = 1 << 8;
-					move_mast
-				}
-			}
-			if(HAL_GPIO_ReadPin (GPIOB, GPIO_PIN_13))
-			{
+			if(HAL_GPIO_ReadPin (GPIOB, GPIO_PIN_13)){
 				stop_swivel
 				move_link1(0)
 				move_link2(0)
@@ -589,10 +517,23 @@ int main()
 						+ (getuval() - '0') * 100 + (getuval() - '0') * 10
 						+ (getuval() - '0');   //y value
 			}
-			if(getuval() == 'c') 	// MAST
+			trash = getuval(); //This is actually Mast CAM values but we're ignoring it for now
+			x = x - 8000;
+			y = y - 8000;
+
+			if (abs(x) < 500)
+				x = 0;
+			if (abs(y) < 500)
+				y = 0;
+
+			MotorCode(x, y, gear);   //Run MotorCode
+
+
+
+
+		}
+		else if(mode == 'c') 	// MAST
 			{
-				x=8000;
-				y=8000;
 				/*
 				mast = (getuval() - '0') * 10000 + (getuval() - '0') * 1000
 						+ (getuval() - '0') * 100 + (getuval() - '0') * 10
@@ -610,26 +551,13 @@ int main()
 					move_mast
 				}
 			}
+		else
+					{
+						trash = trash + 1 - 1;   //Bakchodi
+					}
 
-			trash = getuval(); //This is actually Mast CAM values but we're ignoring it for now
-
-		}
-
-		else {
-			trash = trash + 1 - 1;   //Bakchodi
-		}
-
-		x = x - 8000;
-		y = y - 8000;
-
-		if (abs(x) < 500)
-			x = 0;
-		if (abs(y) < 500)
-			y = 0;
-
-		MotorCode(x, y, gear);   //Run MotorCode
 
 	}
-
-} 							//LINK1   //LINK2
+}
+							//LINK1   //LINK2
 //Data Packets: a s <16001> o <16000> t <16000> r <16001> p <16001> g <16001>
