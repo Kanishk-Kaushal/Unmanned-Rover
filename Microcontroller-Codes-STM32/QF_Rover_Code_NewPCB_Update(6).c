@@ -141,7 +141,7 @@ void GPIO_Initialize()
 
 	//PB8 Setup: (DIR) -> MAST
 	GPIOB->CRH |= GPIO_CRH_MODE8;  //OUTPUT Mode (11)
-	GPIOB->CRH &= ~GPIO_CRH_CNF8_1; //AF Output Push-Pull (10)
+	GPIOB->CRH &= ~GPIO_CRH_CNF8;  //Output Push-Pull (10)
 
 	//6)
 	//PB10 Setup: (DIR)
@@ -208,6 +208,7 @@ void Timer_Initialize() {
 	TIM4->ARR = 8000;
 	TIM4->CCR1 = 0;
 	TIM4->CCR2 = 0;
+	TIM4->CCR4 = 0;
 
 	TIM4->EGR |= TIM_EGR_UG;   //Update Registers
 	TIM4->CR1 |= TIM_CR1_CEN;   //Start Counting
@@ -379,7 +380,6 @@ int main() {
 	int link2 = 0, roll = 0;
 	int gripper = 0, pitch = 0;
 	int allen = 0;
-	int mast = 0;
 	int trash = 0;
 
 	//float gear = 1.0;
@@ -549,16 +549,17 @@ int main() {
 						+ (getuval() - '0');
 				*/
 
-				if ((getuval()-'0') == 0)
+				if ((getuval()) == '0')
 					stop_mast
 
 				else if (getuval() == 'l') {
 					GPIOB->BSRR = 1 << (8 + 16);
 					move_mast
 				} else if (getuval() == 'r') {
-					GPIOB->BSRR = 1 << 8;
+					GPIOB->BSRR = 1 << 8 ;
 					move_mast
 				}
+				else{stop_mast}
 			}
 		else
 					{
